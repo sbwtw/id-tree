@@ -176,6 +176,39 @@ impl<T> Tree<T> {
         TreeBuilder::new().build()
     }
 
+    ///
+    /// Returns the maximum height of the `Tree`.
+    ///
+    /// ```
+    /// use id_tree::*;
+    /// use id_tree::InsertBehavior::*;
+    ///
+    /// let mut tree: Tree<i32> = Tree::new();
+    /// assert_eq!(0, tree.height());
+    ///
+    /// let root_id = tree.insert(Node::new(1), AsRoot).unwrap();
+    /// assert_eq!(1, tree.height());
+    ///
+    /// tree.insert(Node::new(2), UnderNode(&root_id)).unwrap();
+    /// assert_eq!(2, tree.height());
+    /// ```
+    ///
+    pub fn height(&self) -> usize {
+        match self.root {
+            Some(ref id) => self.height_of_node(id),
+            _ => 0,
+        }
+    }
+
+    fn height_of_node(&self, node: &NodeId) -> usize {
+        let mut h = 0;
+        for n in self.children_ids(node).unwrap() {
+            h = std::cmp::max(h, self.height_of_node(n));
+        }
+
+        h + 1
+    }
+
     /// Inserts a new `Node` into the `Tree`.  The `InsertBehavior` provided will determine where
     /// the `Node` is inserted.
     ///
